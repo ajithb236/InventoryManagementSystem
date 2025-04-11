@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1>Inventory Dashboard</h1>
+            <p class="text-muted">Welcome to your inventory management system</p>
+        </div>
+        <div class="col-auto">
+            <div class="d-flex">
+                <a href="{% url 'manage_inventory' %}" class="btn btn-primary me-2">Manage Inventory</a>
+                <a href="{% url 'logout' %}" class="btn btn-outline-secondary">Logout</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Dashboard Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card bg-primary text-white mb-3 shadow-sm">
+                <div class="card-body d-flex justify-content-between">
+                    <div>
+                        <h5 class="card-title">Total Items</h5>
+                        <p class="display-4">{{ items_count }}</p>
+                    </div>
+                    <i class="fas fa-boxes fa-3x opacity-50"></i>
+                </div>
+                <div class="card-footer bg-primary border-top-0">
+                    <a href="{% url 'manage_inventory' %}" class="text-white text-decoration-none">View All Items &raquo;</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card bg-warning text-dark mb-3 shadow-sm">
+                <div class="card-body d-flex justify-content-between">
+                    <div>
+                        <h5 class="card-title">Low Stock Items</h5>
+                        <p class="display-4">{{ low_stock_items.count }}</p>
+                    </div>
+                    <i class="fas fa-exclamation-triangle fa-3x opacity-50"></i>
+                </div>
+                <div class="card-footer bg-warning border-top-0">
+                    <a href="{% url 'manage_inventory' %}?filter=low_stock" class="text-dark text-decoration-none">View Low Stock &raquo;</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card bg-info text-white mb-3 shadow-sm">
+                <div class="card-body d-flex justify-content-between">
+                    <div>
+                        <h5 class="card-title">Locations</h5>
+                        <p class="display-4">{{ locations_count }}</p>
+                    </div>
+                    <i class="fas fa-map-marker-alt fa-3x opacity-50"></i>
+                </div>
+                <div class="card-footer bg-info border-top-0">
+                    <a href="#" class="text-white text-decoration-none">View All Locations &raquo;</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Items and Low Stock -->
+    <div class="row">
+        <!-- Low Stock Items -->
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">Low Stock Items</h5>
+                </div>
+                <div class="card-body">
+                    {% if low_stock_items %}
+                        <div class="list-group">
+                            {% for item in low_stock_items|slice:":5" %}
+                                <a href="{% url 'edit_item' item.id %}" class="list-group-item list-group-item-action">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <strong>{{ item.name }}</strong>
+                                            <br><small class="text-muted">{{ item.description|truncatechars:50 }}</small>
+                                        </div>
+                                        <span class="badge bg-warning rounded-pill">{{ item.quantity }} left</span>
+                                    </div>
+                                </a>
+                            {% endfor %}
+                        </div>
+                        {% if low_stock_items.count > 5 %}
+                            <div class="text-center mt-3">
+                                <a href="{% url 'manage_inventory' %}?filter=low_stock" class="btn btn-sm btn-outline-warning">View All Low Stock Items</a>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <p class="text-center my-3">No low stock items!</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'manage_inventory' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-boxes me-2"></i> Manage Inventory
+                        </a>
+                        <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#addItemModal">
+                            <i class="fas fa-plus me-2"></i> Add New Item
+                        </button>
+                        <a href="{% url 'inventory_analytics' %}" class="btn btn-outline-info">
+                            <i class="fas fa-file-export me-2"></i> Inventory Analytics
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Item Modal -->
+<div class="modal fade" id="addItemModal" tabindex="-1" aria-labelledby="addItemModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="addItemModalLabel">Add New Item</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{% url 'manage_inventory' %}" method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="id_name" class="form-label">Name:</label>
+                        <input type="text" name="name" id="id_name" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_description" class="form-label">Description:</label>
+                        <textarea name="description" id="id_description" class="form-control" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_quantity" class="form-label">Quantity:</label>
+                        <input type="number" name="quantity" id="id_quantity" class="form-control" min="0" value="0" required>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-success">Add Item</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

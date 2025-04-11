@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1>Locations for: {{ item.name }}</h1>
+        </div>
+        <div class="col-auto">
+            <a href="{% url 'manage_inventory' %}" class="btn btn-secondary">Back to Inventory</a>
+        </div>
+    </div>
+    
+    <!-- Messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+    
+    <div class="row">
+        <!-- Locations List -->
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Location History</h5>
+                </div>
+                <div class="card-body p-0">
+                    {% if locations %}
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Location</th>
+                                        <th>Date Added</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for location in locations %}
+                                        <tr>
+                                            <td>{{ location.location }}</td>
+                                            <td>{{ location.date_added }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="p-4 text-center">
+                            <p class="mb-0">No location history available.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Add Location Form -->
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Add New Location</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {% csrf_token %}
+                        {{ form.item }}
+                        <div class="mb-3">
+                            <label for="id_location" class="form-label">Location:</label>
+                            {{ form.location|add_class:"form-control" }}
+                        </div>
+                        <button type="submit" class="btn btn-success w-100">Add Location</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card mt-3 shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0">Item Details</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Name:</strong> {{ item.name }}</p>
+                    <p><strong>Description:</strong> {{ item.description }}</p>
+                    <p><strong>Current Quantity:</strong> {{ item.quantity }}</p>
+                    {% if item.qr_code %}
+                        <p><strong>QR Code:</strong> <a href="{{ item.qr_code.url }}">View</a></p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

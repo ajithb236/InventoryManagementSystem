@@ -21,18 +21,6 @@
             <form method="POST" class="needs-validation" novalidate>
                 {% csrf_token %}
                 
-                <!-- Name -->
-                <div class="mb-3">
-                    <label for="id_name" class="form-label fw-bold">Name:</label>
-                    <input type="text" id="id_name" name="name" class="form-control rounded-pill" value="{{ request.POST.name }}" placeholder="Enter your full name" required>
-                </div>
-
-                <!-- Contact Number -->
-                <div class="mb-3">
-                    <label for="id_contact" class="form-label fw-bold">Contact Number:</label>
-                    <input type="tel" id="id_contact" name="contact" class="form-control rounded-pill" value="{{ request.POST.contact }}" placeholder="Enter your contact number" required>
-                </div>
-
                 <!-- Username -->
                 <div class="mb-3">
                     <label for="id_username" class="form-label fw-bold">Username:</label>
@@ -40,12 +28,6 @@
                     {% if form.username.errors %}
                         <div class="text-danger small">{{ form.username.errors.0 }}</div>
                     {% endif %}
-                </div>
-
-                <!-- Email ID -->
-                <div class="mb-3">
-                    <label for="id_email_id" class="form-label fw-bold">Email ID:</label>
-                    <input type="email" id="id_email_id" name="email_id" class="form-control rounded-pill" value="{{ request.POST.email_id }}" placeholder="Enter your email address" required>
                 </div>
 
                 <!-- Password -->
@@ -64,15 +46,6 @@
                     {% if form.password2.errors %}
                         <div class="text-danger small">{{ form.password2.errors.0 }}</div>
                     {% endif %}
-                </div>
-
-                <!-- Role -->
-                <div class="mb-3">
-                    <label for="id_role" class="form-label fw-bold">Role:</label>
-                    <select name="role" id="id_role" class="form-select rounded-pill">
-                        <option value="Employee" {% if request.POST.role == "Employee" %}selected{% endif %}>Employee</option>
-                        <option value="HR" {% if request.POST.role == "HR" %}selected{% endif %}>HR</option>
-                    </select>
                 </div>
 
                 <!-- Submit Button -->

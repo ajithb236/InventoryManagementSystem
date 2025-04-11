@@ -17,7 +17,7 @@
                 </div>
                 <button type="submit" class="btn btn-primary w-100">Login</button>
             </form>
-            <p class="text-center mt-3">Don't have an account? <a href="{% url 'register' %}">Register here</a></p>
+             <p class="text-center mt-3">Don't have an account? <a href="{% url 'register' %}">Register here</a></p>
             {% if error %}
             <p class="text-danger text-center">{{ error }}</p>
             {% endif %}
