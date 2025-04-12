@@ -1,3 +1,4 @@
+<!-- filepath: d:\InventoryManagementSystem\inventory\templates\inventory\analytics.html -->
 {% extends 'base.html' %}
 {% block content %}
 <div class="container mt-4">
@@ -47,18 +48,8 @@
         </div>
     </div>
     
-    <!-- Charts Row -->
+    <!-- Location Distribution Chart -->
     <div class="row mb-4">
-        <div class="col-md-8">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0">Inventory Trends</h5>
-                </div>
-                <div class="card-body">
-                    <canvas id="inventoryTrendsChart" height="300"></canvas>
-                </div>
-            </div>
-        </div>
         <div class="col-md-4">
             <div class="card shadow-sm">
                 <div class="card-header bg-white">
@@ -136,47 +127,6 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Inventory Trends Chart
-        const trendsCtx = document.getElementById('inventoryTrendsChart').getContext('2d');
-        new Chart(trendsCtx, {
-            type: 'line',
-            data: {
-                labels: {{ monthly_data.labels|safe }},
-                datasets: [{
-                    label: 'Total Inventory',
-                    data: {{ monthly_data.values|safe }},
-                    borderColor: '#0d6efd',
-                    backgroundColor: 'rgba(13, 110, 253, 0.1)',
-                    fill: true,
-                    tension: 0.3
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: 'Monthly Inventory Levels'
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Quantity'
-                        }
-                    },
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Month'
-                        }
-                    }
-                }
-            }
-        });
-        
         // Location Distribution Chart
         const locationCtx = document.getElementById('locationChart').getContext('2d');
         new Chart(locationCtx, {
