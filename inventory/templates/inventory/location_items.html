@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}Items at {{ location }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1>Items at: {{ location }}</h1>
+            <p class="text-muted">{{ items_count }} items found at this location</p>
+        </div>
+        <div class="col-auto">
+            <a href="{% url 'view_locations' %}" class="btn btn-secondary">Back to Locations</a>
+        </div>
+    </div>
+    
+    <!-- Items List -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <div class="row">
+                <div class="col-md-4">Item Name</div>
+                <div class="col-md-4">Description</div>
+                <div class="col-md-2">Quantity</div>
+                <div class="col-md-2">Actions</div>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            {% if items %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <tbody>
+                            {% for item in items %}
+                                <tr>
+                                    <td class="col-md-4">
+                                        <strong>{{ item.name }}</strong>
+                                    </td>
+                                    <td class="col-md-4">
+                                        {{ item.description|truncatechars:50 }}
+                                    </td>
+                                    <td class="col-md-2">
+                                        {% if item.quantity < 10 %}
+                                            <span class="badge bg-danger">Low: {{ item.quantity }}</span>
+                                        {% else %}
+                                            <span class="badge bg-success">{{ item.quantity }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="col-md-2">
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{% url 'item_locations' item.id %}" class="btn btn-outline-primary">
+                                                <i class="bi bi-geo-alt"></i> Locations
+                                            </a>
+                                            <a href="{% url 'edit_item' item.id %}" class="btn btn-outline-secondary">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="p-4 text-center">
+                    <p class="mb-0">No items found at this location.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -4,7 +4,6 @@ from django.contrib import messages
 from .models import Item, Inventory
 from django import forms
 from django.db.models import Sum, Count
-
 class ItemForm(forms.ModelForm):
     class Meta:
         model = Item
@@ -41,6 +40,9 @@ def manage_inventory(request):
     search_query = request.GET.get('search', '')
     if search_query:
         items = items.filter(name__icontains=search_query)
+    filter_param = request.GET.get('filter', '')
+    if filter_param == 'low_stock':
+        items = items.filter(quantity__lt=10)
     
     # Handle item creation
     if request.method == 'POST':
@@ -58,7 +60,7 @@ def manage_inventory(request):
                     description=description,
                     quantity=int(quantity)
                 )
-                messages.success(request, "Item added successfully!")
+
                 # Use redirect object instead of name
                 return redirect('manage_inventory')
         except Exception as e:
@@ -123,14 +125,9 @@ def item_locations(request, item_id):
     }
     return render(request, 'inventory/item_locations.html', context)
 
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from .models import Item, Inventory
-from django import forms
-from django.db.models import Sum, Count  # Add this import for aggregation functions
 
-# ... rest of your code remains the same ...
+
+
 
 @login_required
 def inventory_analytics(request):
@@ -167,3 +164,49 @@ def inventory_analytics(request):
     }
     
     return render(request, 'inventory/analytics.html', context)
+
+
+@login_required
+def view_locations(request):
+    """View all inventory locations"""
+    # Get unique locations with item counts
+    locations = Inventory.objects.values('location').annotate(
+        item_count=Count('item', distinct=True)
+    ).order_by('location')
+    
+    # Get search parameter
+    search_query = request.GET.get('search', '')
+    if search_query:
+        locations = locations.filter(location__icontains=search_query)
+    
+    # Count total unique locations
+    total_locations = locations.count()
+    
+    context = {
+        'locations': locations,
+        'total_locations': total_locations,
+        'search_query': search_query
+    }
+    return render(request, 'inventory/view_locations.html', context)
+
+@login_required
+def location_items(request, location):
+    """View all items at a specific location"""
+    # Get all inventory records for this location
+    inventory_items = Inventory.objects.filter(location=location).select_related('item')
+    
+    # Get unique items at this location (most recent entries)
+    items = []
+    item_ids = set()
+    
+    for inv in inventory_items:
+        if inv.item.id not in item_ids:
+            items.append(inv.item)
+            item_ids.add(inv.item.id)
+    
+    context = {
+        'location': location,
+        'items': items,
+        'items_count': len(items)
+    }
+    return render(request, 'inventory/location_items.html', context)

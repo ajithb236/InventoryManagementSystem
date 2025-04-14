@@ -7,5 +7,8 @@ urlpatterns = [
     path('edit/<int:item_id>/', views.edit_item, name='edit_item'),
     path('delete/<int:item_id>/', views.delete_item, name='delete_item'),
     path('locations/<int:item_id>/', views.item_locations, name='item_locations'),
-    path('analytics/', views.inventory_analytics, name='inventory_analytics'),  # Add this line
+    path('analytics/', views.inventory_analytics, name='inventory_analytics'),
+    path('locations/', views.view_locations, name='view_locations'),
+    path('location/<str:location>/', views.location_items, name='location_items'),
+
 ]

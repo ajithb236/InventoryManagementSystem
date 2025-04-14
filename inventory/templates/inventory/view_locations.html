@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Inventory Locations{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h2>Inventory Locations</h2>
+        <p class="text-muted">Manage all storage locations ({{ total_locations }} total)</p>
+    </div>
+</div>
+
+<!-- Search form -->
+<div class="row mb-4">
+    <div class="col">
+        <form method="get" class="d-flex">
+            <input type="text" name="search" class="form-control me-2" placeholder="Search locations..." 
+                   value="{{ search_query }}">
+            <button type="submit" class="btn btn-primary">Search</button>
+            {% if search_query %}
+                <a href="{% url 'view_locations' %}" class="btn btn-outline-secondary ms-2">Clear</a>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<!-- Locations list -->
+<div class="row">
+    <div class="col">
+        <div class="card">
+            <div class="card-header bg-light">
+                <div class="row">
+                    <div class="col-md-6">Location Name</div>
+                    <div class="col-md-4">Items Count</div>
+                    <div class="col-md-2">Actions</div>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                {% if locations %}
+                    <ul class="list-group list-group-flush">
+                        {% for location in locations %}
+                        <li class="list-group-item">
+                            <div class="row align-items-center">
+                                <div class="col-md-6">
+                                    <strong>{{ location.location }}</strong>
+                                </div>
+                                <div class="col-md-4">
+                                    <span class="badge bg-info">{{ location.item_count }} item(s)</span>
+                                </div>
+                                <div class="col-md-2">
+                                    <a href="{% url 'location_items' location.location %}" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-list"></i> View Items
+                                    </a>
+                                </div>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="text-center p-4">
+                        <p class="text-muted">No locations found{% if search_query %} matching "{{ search_query }}"{% endif %}.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
