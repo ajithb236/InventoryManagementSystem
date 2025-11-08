@@ -112,8 +112,14 @@
                         <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#addItemModal">
                             <i class="fas fa-plus me-2"></i> Add New Item
                         </button>
+                        <a href="{% url 'view_locations' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-map-marker-alt me-2"></i> View Locations
+                        </a>
+                        <a href="{% url 'transaction_history' %}" class="btn btn-outline-warning">
+                            <i class="fas fa-history me-2"></i> Transaction History
+                        </a>
                         <a href="{% url 'inventory_analytics' %}" class="btn btn-outline-info">
-                            <i class="fas fa-file-export me-2"></i> Inventory Analytics
+                            <i class="fas fa-chart-bar me-2"></i> Inventory Analytics
                         </a>
                     </div>
                 </div>

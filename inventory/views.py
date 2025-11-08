@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import Item, Inventory
+from .models import Item, Inventory, InventoryTransaction
 from django import forms
 from django.db.models import Sum, Count
 class ItemForm(forms.ModelForm):
@@ -55,13 +55,21 @@ def manage_inventory(request):
                 messages.error(request, "Item name is required")
             else:
                 # Create the item
-                Item.objects.create(
+                item = Item.objects.create(
                     name=name,
                     description=description,
                     quantity=int(quantity)
                 )
-
-                # Use redirect object instead of name
+                
+                # Log transaction
+                if int(quantity) > 0:
+                    InventoryTransaction.objects.create(
+                        item=item,
+                        quantity_change=int(quantity),
+                        notes=f"Initial stock added"
+                    )
+                
+                messages.success(request, f"Item '{name}' added successfully!")
                 return redirect('manage_inventory')
         except Exception as e:
             messages.error(request, f"Error adding item: {str(e)}")
@@ -75,11 +83,22 @@ def manage_inventory(request):
 def edit_item(request, item_id):
     """View for editing an inventory item"""
     item = get_object_or_404(Item, id=item_id)
+    old_quantity = item.quantity
     
     if request.method == 'POST':
         form = ItemForm(request.POST, instance=item)
         if form.is_valid():
-            form.save()
+            updated_item = form.save()
+            
+            # Log transaction if quantity changed
+            quantity_diff = updated_item.quantity - old_quantity
+            if quantity_diff != 0:
+                InventoryTransaction.objects.create(
+                    item=updated_item,
+                    quantity_change=quantity_diff,
+                    notes=f"Quantity updated from {old_quantity} to {updated_item.quantity}"
+                )
+            
             messages.success(request, f"Item '{item.name}' updated successfully!")
             return redirect('manage_inventory')
     else:
@@ -94,6 +113,16 @@ def delete_item(request, item_id):
     
     if request.method == 'POST':
         item_name = item.name
+        item_quantity = item.quantity
+        
+        # Log transaction before deletion
+        if item_quantity > 0:
+            InventoryTransaction.objects.create(
+                item=item,
+                quantity_change=-item_quantity,
+                notes=f"Item deleted - removed all stock"
+            )
+        
         item.delete()
         messages.success(request, f"Item '{item_name}' deleted successfully!")
         return redirect('manage_inventory')
@@ -210,3 +239,18 @@ def location_items(request, location):
         'items_count': len(items)
     }
     return render(request, 'inventory/location_items.html', context)
+
+@login_required
+def transaction_history(request):
+    """View all inventory transactions"""
+    transactions = InventoryTransaction.objects.select_related('item').order_by('-timestamp')
+    
+    # Optional: filter by item
+    item_id = request.GET.get('item_id')
+    if item_id:
+        transactions = transactions.filter(item_id=item_id)
+    
+    context = {
+        'transactions': transactions
+    }
+    return render(request, 'inventory/transaction_history.html', context)
